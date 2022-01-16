@@ -11,6 +11,13 @@ pygame.display.set_caption("Space Invaders")
 icon = pygame.image.load('ufo.png')
 pygame.display.set_icon(icon)
 
+# Score
+score_value = 0
+font = pygame.font.Font('freesansbold.ttf', 20)
+
+textX = 10
+textY = 10
+
 # Player
 playerImg = pygame.image.load('spaceship.png')
 playerX = 370
@@ -33,6 +40,7 @@ for i in range(num_of_enemies):
     enemyX.append(random.choice([850, -100]))
     enemyY.append(random.randint(10, 150))
     enemyRect.append(enemyImg.get_rect())
+
 # Bullets
 bulletImg = pygame.image.load('bullet.png')
 bulletX = playerX
@@ -41,6 +49,9 @@ bulletY_change = -1
 bulletRect1 = bulletImg.get_rect()
 bulletRect2 = bulletImg.get_rect()
 
+def score():
+    score = font.render("Score: " + str(score_value), True, (255, 255, 255))
+    screen.blit(score, (textX, textY))
 
 def player(x, y):
     playerRect.x = x
@@ -120,12 +131,16 @@ while running:
         elif enemyX[i] > 850:
             enemyX_change[i] = -enemySpeed
             enemyY[i] += enemyY_change
+
         enemy(i, enemyX[i], enemyY[i])
 
         if enemyRect[i].colliderect(playerRect):
             running = False
 
         if enemyRect[i].colliderect(bulletRect1) or enemyRect[i].colliderect(bulletRect2):
+            score_value += 1
             reload_enemy(i)
+
+    score()
 
     pygame.display.update()
