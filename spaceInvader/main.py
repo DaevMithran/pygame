@@ -20,7 +20,7 @@ playerRect = playerImg.get_rect()
 
 # Enemy
 enemyImg = pygame.image.load('enemy.png')
-enemyX = random.randint(0, 736)
+enemyX = random.choice([850, -100])
 enemyY = random.randint(0, 150)
 enemyX_change = 0.3
 enemyY_change = 70
@@ -60,6 +60,11 @@ def reload_bullet():
     global bulletY, bulletX
     bulletY = 460
     bulletX = playerX
+
+def reload_enemy():
+    global enemyY, enemyX
+    enemyY = random.randint(0, 150)
+    enemyX = random.choice([850, -100])
 
 
 # Game Loop
@@ -111,10 +116,7 @@ while running:
     if enemyRect.colliderect(playerRect):
         running = False
 
-    if enemyRect.colliderect(bulletRect1):
-        print('Killed enemy')
-
-    if enemyRect.colliderect(bulletRect2):
-        print('Killed enemy')
+    if enemyRect.colliderect(bulletRect1) or enemyRect.colliderect(bulletRect2):
+        reload_enemy()
 
     pygame.display.update()
