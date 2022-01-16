@@ -15,17 +15,24 @@ pygame.display.set_icon(icon)
 playerImg = pygame.image.load('spaceship.png')
 playerX = 370
 playerY = 480
+playerSpeed = 0.5
 playerX_change = 0
 playerRect = playerImg.get_rect()
 
 # Enemy
+num_of_enemies = 3
 enemyImg = pygame.image.load('enemy.png')
-enemyX = random.choice([850, -100])
-enemyY = random.randint(0, 150)
-enemyX_change = 0.3
+enemyX = []
+enemyY = []
+enemyRect = []
+enemySpeed = 0.7
+enemyX_change = [enemySpeed] * num_of_enemies
 enemyY_change = 70
-enemyRect = enemyImg.get_rect()
 
+for i in range(num_of_enemies):
+    enemyX.append(random.choice([850, -100]))
+    enemyY.append(random.randint(10, 150))
+    enemyRect.append(enemyImg.get_rect())
 # Bullets
 bulletImg = pygame.image.load('bullet.png')
 bulletX = playerX
@@ -41,10 +48,10 @@ def player(x, y):
     screen.blit(playerImg, playerRect)
 
 
-def enemy(x, y):
-    enemyRect.x = x
-    enemyRect.y = y
-    screen.blit(enemyImg, enemyRect)
+def enemy(i, x, y):
+    enemyRect[i].x = x
+    enemyRect[i].y = y
+    screen.blit(enemyImg, enemyRect[i])
 
 
 def bullet(x, y):
@@ -61,10 +68,10 @@ def reload_bullet():
     bulletY = 460
     bulletX = playerX
 
-def reload_enemy():
-    global enemyY, enemyX
-    enemyY = random.randint(0, 150)
-    enemyX = random.choice([850, -100])
+
+def reload_enemy(i):
+    enemyY[i] = random.randint(10, 150)
+    enemyX[i] = random.choice([850, -100])
 
 
 # Game Loop
@@ -79,9 +86,9 @@ while running:
         # KEYDOWN : key press
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                playerX_change = -0.3
+                playerX_change = -playerSpeed
             if event.key == pygame.K_RIGHT:
-                playerX_change = 0.3
+                playerX_change = playerSpeed
             if event.key == pygame.K_SPACE:
                 if bulletY <= 0:
                     reload_bullet()
@@ -103,20 +110,22 @@ while running:
         bulletY += bulletY_change
         bullet(bulletX, bulletY)
 
-    enemyX += enemyX_change
-    if enemyX <= -100:
-        enemyX_change = 0.3
-        enemyY += enemyY_change
-    elif enemyX > 850:
-        enemyX_change = -0.3
-        enemyY += enemyY_change
+    # Enemy movement
+    for i in range(num_of_enemies):
+        enemyX[i] += enemyX_change[i]
+        # boundary conditions
+        if enemyX[i] <= -100:
+            enemyX_change[i] = enemySpeed
+            enemyY[i] += enemyY_change
+        elif enemyX[i] > 850:
+            enemyX_change[i] = -enemySpeed
+            enemyY[i] += enemyY_change
+        enemy(i, enemyX[i], enemyY[i])
 
-    enemy(enemyX, enemyY)
+        if enemyRect[i].colliderect(playerRect):
+            running = False
 
-    if enemyRect.colliderect(playerRect):
-        running = False
-
-    if enemyRect.colliderect(bulletRect1) or enemyRect.colliderect(bulletRect2):
-        reload_enemy()
+        if enemyRect[i].colliderect(bulletRect1) or enemyRect[i].colliderect(bulletRect2):
+            reload_enemy(i)
 
     pygame.display.update()
